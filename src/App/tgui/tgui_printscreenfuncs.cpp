@@ -56,7 +56,7 @@ void		TGUI_PrintScreenShow(void *tguiobj, void *param)
 			break;
 		}
 	}
-
+	
 	ZMOTOR_StartHoming();
 
 	TGUI_ForceRepaint();

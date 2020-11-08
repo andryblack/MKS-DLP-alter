@@ -29,6 +29,7 @@ typedef enum
 	PST_FREEMOVING_UP,
 	PST_FREEMOVING_DOWN,
 	
+	PST_PRINT_START,
 	PST_PRINT_MOVETOLAYER,
 	PST_PRINT_LIGHTPAUSE,
 	PST_PRINT_LIGHT,
@@ -47,6 +48,8 @@ typedef struct
 {
 	uint16_t		cfg_crc;
 	uint16_t		cfg_version;
+
+	uint8_t			disabled;
 
 	uint8_t			invert_dir;
 	int8_t			home_dir;

@@ -854,6 +854,18 @@ int main()
 			case PST_HOMING_PREUP:
 				if (ZMOTOR_IsMoving() == 0)
 				{
+					if (cfgzMotor.disabled) {
+						// force print
+						systemInfo.target_position = cfgzMotor.home_pos;
+						systemInfo.position_known = 1;
+						systemInfo.printer_state = PST_IDLE;
+						if (systemInfo.print_is_homing) {
+							systemInfo.print_is_homing = 0;
+							systemInfo.printer_state = PST_PRINT_START;
+							UVD_Wakeup();
+
+						}
+					} else
 					// endstop not opened after moving
 					if (ZMOTOR_GetEndstopState() != 0)
 					{
@@ -1007,25 +1019,42 @@ int main()
 					}
 					if (systemInfo.print_is_homing)
 					{
-						// TODO - file read error processing!
-						PRINT_ReadLayerInfo();
-
 						systemInfo.print_is_homing = 0;
-						systemInfo.print_is_printing = 1;
-						systemInfo.printer_state = PST_PRINT_MOVETOLAYER;
-						systemInfo.target_position = cfgConfig.zero_pos + l_info.layer_position;
-						systemInfo.print_current_height = systemInfo.target_position - cfgConfig.zero_pos;
-						ZMOTOR_MoveAbsolute(systemInfo.target_position, cfgzMotor.feedrate);
-						UVFAN_On();
-
-						// TODO - file read error processing!
-						PRINT_ReadLayerBegin();
+						systemInfo.printer_state = PST_PRINT_START;
 					}
 					else
 					{
 						systemInfo.printer_state = PST_IDLE;
 						SYSTIMER_SetCountDown(zHoldTimer, cfgzMotor.hold_time);
 						SYSTIMER_SetCountDown(zDisTimer, cfgzMotor.off_time);
+					}
+				}
+				break;
+
+			case PST_PRINT_START:
+				{
+					// TODO - file read error processing!
+					if (PRINT_ReadLayerInfo() == 0) {
+						BUZZ_TimerOn(cfgConfig.buzzer_msg);
+						TGUI_MessageBoxOk(LANG_GetString(LSTR_ERROR), LANG_GetString(LSTR_MSG_PRINT_FILE_ERROR));
+						systemInfo.printer_state = PST_IDLE;
+						break;
+					}
+
+					systemInfo.print_is_homing = 0;
+					systemInfo.print_is_printing = 1;
+					systemInfo.printer_state = PST_PRINT_MOVETOLAYER;
+					systemInfo.target_position = cfgConfig.zero_pos + l_info.layer_position;
+					systemInfo.print_current_height = systemInfo.target_position - cfgConfig.zero_pos;
+					ZMOTOR_MoveAbsolute(systemInfo.target_position, cfgzMotor.feedrate);
+					UVFAN_On();
+
+					// TODO - file read error processing!
+					if (PRINT_ReadLayerBegin()==0) {
+						BUZZ_TimerOn(cfgConfig.buzzer_msg);
+						TGUI_MessageBoxOk(LANG_GetString(LSTR_ERROR), LANG_GetString(LSTR_MSG_PRINT_FILE_ERROR));
+						systemInfo.printer_state = PST_IDLE;
+						break;
 					}
 				}
 				break;
@@ -1058,7 +1087,12 @@ int main()
 						{
 							PRINT_ClearLayerPreview();
 							// TODO - file read error processing!
-							PRINT_ReadSublayerContinue();
+							if (PRINT_ReadSublayerContinue() == 0) {
+								BUZZ_TimerOn(cfgConfig.buzzer_msg);
+								TGUI_MessageBoxOk(LANG_GetString(LSTR_ERROR), LANG_GetString(LSTR_MSG_PRINT_FILE_ERROR));
+								systemInfo.printer_state = PST_IDLE;
+								break;
+							}
 							UVLED_TimerOn((uint32_t)(l_info.light_time * 1000) / PFILE_GetAntialiasing());
 							PRINT_DrawLayerPreview();
 							break;
@@ -1084,7 +1118,12 @@ int main()
 					systemInfo.print_current_sublayer = 0;
 					systemInfo.print_current_layer++;
 					// TODO - file read error processing!
-					PRINT_ReadLayerInfo();
+					if (PRINT_ReadLayerInfo() == 0) {
+						BUZZ_TimerOn(cfgConfig.buzzer_msg);
+						TGUI_MessageBoxOk(LANG_GetString(LSTR_ERROR), LANG_GetString(LSTR_MSG_PRINT_FILE_ERROR));
+						systemInfo.printer_state = PST_IDLE;
+						break;
+					}
 					systemInfo.printer_state = PST_PRINT_LIFT;
 					systemInfo.target_position = cfgConfig.zero_pos + l_info.layer_position;
 					systemInfo.print_current_height = systemInfo.target_position - cfgConfig.zero_pos;

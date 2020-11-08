@@ -136,7 +136,7 @@ void		_tgui_FileviewPrintinfoPaint(void *tguiobj, void *param)
 		LCDUI_SetColor(LCDUI_RGB(0xE00000));
 	else
 		LCDUI_SetColor(LCDUI_RGB(0x00496C));
-	sprintf(msg, "%u", PFILE_GetTotalLayers());
+	sprintf(msg, "%lu", PFILE_GetTotalLayers());
 	LCDUI_DrawText(msg, LCDUI_TEXT_ALIGN_RIGHT, thisbtn->position.left + 5, ytop, thisbtn->position.right - 5, -1);
 	// print time
 	ytop += fntheight + yinc;
@@ -144,7 +144,7 @@ void		_tgui_FileviewPrintinfoPaint(void *tguiobj, void *param)
 	LCDUI_SetColor(LCDUI_RGB(0x000000));
 	LCDUI_DrawText(LANG_GetString(LSTR_PRINT_TIME), 0, thisbtn->position.left + 5, ytop, thisbtn->position.right - 5, -1);
 	LCDUI_SetColor(LCDUI_RGB(0x00496C));
-	sprintf(msg, "%02u:%02u", ptime / 3600, (ptime % 3600) / 60);
+	sprintf(msg, "%02lu:%02lu", ptime / 3600, (ptime % 3600) / 60);
 	LCDUI_DrawText(msg, LCDUI_TEXT_ALIGN_RIGHT, thisbtn->position.left + 5, ytop, thisbtn->position.right - 5, -1);
 	// layer thickness
 	ytop += fntheight + yinc;
@@ -158,7 +158,7 @@ void		_tgui_FileviewPrintinfoPaint(void *tguiobj, void *param)
 	LCDUI_SetColor(LCDUI_RGB(0x000000));
 	LCDUI_DrawText(LANG_GetString(LSTR_ANTIALIASING), 0, thisbtn->position.left + 5, ytop, thisbtn->position.right - 5, -1);
 	LCDUI_SetColor(LCDUI_RGB(0x00496C));
-	sprintf(msg, "%u", PFILE_GetAntialiasing());
+	sprintf(msg, "%lu", PFILE_GetAntialiasing());
 	LCDUI_DrawText(msg, LCDUI_TEXT_ALIGN_RIGHT, thisbtn->position.left + 5, ytop, thisbtn->position.right - 5, -1);
 	// layer light
 	ytop += fntheight + yinc;

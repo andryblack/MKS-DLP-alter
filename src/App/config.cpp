@@ -875,6 +875,22 @@ void			CFG_LoadFromFile(void *par1, void *par2)
 						rdstate = CFGR_ZMOTOR;
 						break;
 					}
+				} else
+				if (*lexem == 'D') 
+				{
+					if (strcmp(lexem, (char*)"DISABLE") == 0) {
+						if (pval.type != PARAMVAL_NUMERIC)
+						{
+							string = LANG_GetString(LSTR_MSG_INVALID_PARAMVAL_IN_CFG);
+							sprintf(msg, string, numstr);
+							break;
+						}
+						if (pval.int_val < 0 || pval.int_val > 1)
+							pval.int_val = 1;
+						cfgzMotor.disabled = pval.int_val;
+						rdstate = CFGR_ZMOTOR;
+						break;
+					}
 				}
 
 				string = LANG_GetString(LSTR_MSG_UNKNOWN_PARAMNAME_IN_CFG);

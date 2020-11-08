@@ -91,6 +91,9 @@ void		ZMOTOR_Init()
 
 void			ZMOTOR_MotorEnable()
 {
+	if (cfgzMotor.disabled) {
+		return;
+	}
 	Z_ENA_GPIO_Port->BSRR = (uint32_t)Z_ENA_Pin << 16U;
 	Z_REF_TIMER->CCR1 = (uint32_t)(cfgzMotor.current_vref * 0.364);
 	systemInfo.zmotor_enabled = 1;
@@ -102,6 +105,9 @@ void			ZMOTOR_MotorEnable()
 
 void			ZMOTOR_MotorDisable()
 {
+	if (cfgzMotor.disabled) {
+		return;
+	}
 	Z_ENA_GPIO_Port->BSRR = Z_ENA_Pin;
 	// Set motor current
 	Z_REF_TIMER->CCR1 = 1;
@@ -132,6 +138,9 @@ void			ZMOTOR_MoveRelative(float dist, float speed)
 
 void			ZMOTOR_MoveAbsolute(float pos, float speed)
 {
+	if (cfgzMotor.disabled) {
+		return;
+	}
 	zPlanner.buffer_segment(pos, speed);
 }
 //==============================================================================
@@ -141,6 +150,9 @@ void			ZMOTOR_MoveAbsolute(float pos, float speed)
 
 void			ZMOTOR_SetCurrent(float current)
 {
+	if (cfgzMotor.disabled) {
+		return;
+	}
 	if (current > 1000)
 		current = 1000;
 	cfgzMotor.current_vref = current;
@@ -153,6 +165,9 @@ void			ZMOTOR_SetCurrent(float current)
 
 void			ZMOTOR_SetFullCurrent()
 {
+	if (cfgzMotor.disabled) {
+		return;
+	}
 	Z_REF_TIMER->CCR1 = (uint32_t)(cfgzMotor.current_vref * 0.364);
 }
 //==============================================================================
@@ -162,6 +177,9 @@ void			ZMOTOR_SetFullCurrent()
 
 void			ZMOTOR_SetHoldCurrent()
 {
+	if (cfgzMotor.disabled) {
+		return;
+	}
 	Z_REF_TIMER->CCR1 = (uint32_t)(cfgzMotor.current_hold_vref * 0.364);
 }
 //==============================================================================
@@ -189,6 +207,9 @@ uint8_t			ZMOTOR_IsMoving()
 
 void			ZMOTOR_SetPosition(float pos)
 {
+	if (cfgzMotor.disabled) {
+		return;
+	}
 	zPlanner.set_position_mm(pos);
 }
 //==============================================================================
@@ -198,6 +219,9 @@ void			ZMOTOR_SetPosition(float pos)
 
 void			ZMOTOR_Stop()
 {
+	if (cfgzMotor.disabled) {
+		return;
+	}
 	zPlanner.quick_stop();
 }
 //==============================================================================
@@ -234,6 +258,10 @@ void			ZMOTOR_DisableEndstops()
 
 void			ZMOTOR_StartHoming()
 {
+	if (cfgzMotor.disabled) {
+		systemInfo.printer_state = PST_HOMING_PREUP;
+		return;
+	}
 	systemInfo.position_known = 0;
 
 	if (systemInfo.zmotor_enabled == 0)
